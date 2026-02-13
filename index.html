@@ -2,39 +2,48 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dla Ciebie ❤️</title>
     <style>
-        body { margin: 0; overflow: hidden; background: black; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; color: white; }
+        body { margin: 0; overflow: hidden; background: black; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; color: white; -webkit-tap-highlight-color: transparent; }
         canvas { position: fixed; top: 0; left: 0; z-index: -1; }
         
         /* Start Screen */
         #startScreen { position: fixed; inset: 0; background: black; z-index: 100; display: flex; justify-content: center; align-items: center; }
-        #startBtn { padding: 20px 40px; font-size: 22px; background: #ff4da6; color: white; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; box-shadow: 0 0 20px rgba(255, 77, 166, 0.6); }
+        #startBtn { padding: 18px 35px; font-size: 20px; background: #ff4da6; color: white; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; box-shadow: 0 0 20px rgba(255, 77, 166, 0.6); }
 
-        .text-typing { position: absolute; width: 90%; text-align: center; font-size: 24px; color: #ff4da6; text-shadow: 0 0 10px rgba(255, 77, 166, 0.4); }
+        .text-typing { position: absolute; width: 90%; text-align: center; font-size: 22px; color: #ff4da6; top: 40%; }
         
         /* Kontenery */
-        #questionSection, #successSection { text-align: center; z-index: 10; width: 90%; max-width: 400px; display: none; }
+        #questionSection, #successSection { 
+            text-align: center; 
+            z-index: 10; 
+            width: 90%; 
+            max-width: 400px; 
+            display: none; 
+            padding-bottom: 60px; /* Margines, żeby pasek Safari nie zasłaniał przycisków */
+        }
         
-        h1 { font-size: 20px; margin: 15px 0; }
-        .big-love { font-size: 26px; color: #ff4da6; font-weight: bold; animation: pulse 1s infinite; margin-top: 15px; }
+        h1 { font-size: 19px; margin: 10px 0; }
+        .big-love { font-size: 24px; color: #ff4da6; font-weight: bold; animation: pulse 1s infinite; margin-top: 10px; }
         
-        button { padding: 12px 25px; font-size: 18px; border: none; border-radius: 12px; cursor: pointer; margin: 10px; font-weight: bold; }
+        #btnWrapper { position: relative; height: 120px; margin-top: 10px; }
+
+        button { padding: 12px 25px; font-size: 18px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; }
         #yesBtn { background: #ff4da6; color: white; }
-        #noBtn { background: #444; color: white; position: absolute; transition: 0.1s; }
+        #noBtn { background: #444; color: white; position: absolute; left: 50%; transform: translateX(10px); transition: 0.1s; }
 
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         .heart { position: absolute; font-size: 25px; pointer-events: none; z-index: 999; animation: floatUp 3s linear forwards; }
         @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-100vh); opacity: 0; } }
         
-        /* TUTAJ ZMIENIŁEM ROZMIAR ZDJĘĆ */
+        /* POPRAWIONE ROZMIARY ZDJĘĆ POD SAFARI */
         img { 
-            max-width: 80%; /* Zdjęcie zajmie max 80% szerokości telefonu */
-            max-height: 300px; /* Nie będzie wyższe niż 300px */
+            max-width: 65%; /* Jeszcze węższe */
+            max-height: 220px; /* Znacznie niższe, żeby zmieścić przyciski nad paskiem adresu */
             width: auto;
             height: auto;
-            border-radius: 15px; 
+            border-radius: 12px; 
             border: 2px solid #ff4da6; 
             box-shadow: 0 0 15px rgba(255, 77, 166, 0.4); 
         }
@@ -50,14 +59,16 @@
 <div id="typingArea" class="text-typing"></div>
 
 <div id="questionSection">
-    <img src="IMG_3395.JPEG" alt="Nasz skarb">
+    <img src="IMG_3395.JPEG" alt="Zdjęcie 1">
     <h1>Czy będziesz moją walentynką? ❤️</h1>
-    <button id="yesBtn" onclick="acceptValentine()">TAK ❤️</button>
-    <button id="noBtn" onmouseover="moveNo()" onclick="moveNo()">NIE :(</button>
+    <div id="btnWrapper">
+        <button id="yesBtn" onclick="acceptValentine()">TAK ❤️</button>
+        <button id="noBtn" onmouseover="moveNo()" onclick="moveNo()">NIE :(</button>
+    </div>
 </div>
 
 <div id="successSection">
-    <img src="IMG_3396.JPEG" alt="Nasz skarb 2">
+    <img src="IMG_3396.JPEG" alt="Zdjęcie 2">
     <div class="big-love">KOCHAM CIE MYSZKAAAA ❤️</div>
 </div>
 
@@ -72,7 +83,7 @@
 
     function startEverything() {
         document.getElementById("startScreen").style.display = "none";
-        music.play().catch(() => console.log("Muzyka ruszy po akcji"));
+        music.play().catch(() => console.log("Start Audio"));
         runTypewriter();
     }
 
@@ -117,8 +128,9 @@
     }
 
     function moveNo() {
+        // Ograniczamy obszar uciekania, żeby nie uciekał pod pasek Safari
         const x = Math.random() * (window.innerWidth - 120);
-        const y = Math.random() * (window.innerHeight - 60);
+        const y = Math.random() * (window.innerHeight - 180); 
         noBtn.style.left = x + "px";
         noBtn.style.top = y + "px";
     }
