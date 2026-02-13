@@ -10,25 +10,34 @@
         
         /* Start Screen */
         #startScreen { position: fixed; inset: 0; background: black; z-index: 100; display: flex; justify-content: center; align-items: center; }
-        #startBtn { padding: 20px 40px; font-size: 22px; background: #ff4da6; color: white; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; }
+        #startBtn { padding: 20px 40px; font-size: 22px; background: #ff4da6; color: white; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; box-shadow: 0 0 20px rgba(255, 77, 166, 0.6); }
 
-        .text-typing { position: absolute; width: 90%; text-align: center; font-size: 24px; color: #ff4da6; }
+        .text-typing { position: absolute; width: 90%; text-align: center; font-size: 24px; color: #ff4da6; text-shadow: 0 0 10px rgba(255, 77, 166, 0.4); }
         
         /* Kontenery */
         #questionSection, #successSection { text-align: center; z-index: 10; width: 90%; max-width: 400px; display: none; }
         
-        h1 { font-size: 22px; margin: 20px 0; }
-        .big-love { font-size: 30px; color: #ff4da6; font-weight: bold; animation: pulse 1s infinite; margin-top: 15px; }
+        h1 { font-size: 20px; margin: 15px 0; }
+        .big-love { font-size: 26px; color: #ff4da6; font-weight: bold; animation: pulse 1s infinite; margin-top: 15px; }
         
-        button { padding: 15px 30px; font-size: 18px; border: none; border-radius: 12px; cursor: pointer; margin: 10px; font-weight: bold; }
+        button { padding: 12px 25px; font-size: 18px; border: none; border-radius: 12px; cursor: pointer; margin: 10px; font-weight: bold; }
         #yesBtn { background: #ff4da6; color: white; }
         #noBtn { background: #444; color: white; position: absolute; transition: 0.1s; }
 
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         .heart { position: absolute; font-size: 25px; pointer-events: none; z-index: 999; animation: floatUp 3s linear forwards; }
         @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-100vh); opacity: 0; } }
         
-        img { max-width: 100%; height: auto; border-radius: 20px; border: 3px solid #ff4da6; box-shadow: 0 0 20px #ff4da6; }
+        /* TUTAJ ZMIENIŁEM ROZMIAR ZDJĘĆ */
+        img { 
+            max-width: 80%; /* Zdjęcie zajmie max 80% szerokości telefonu */
+            max-height: 300px; /* Nie będzie wyższe niż 300px */
+            width: auto;
+            height: auto;
+            border-radius: 15px; 
+            border: 2px solid #ff4da6; 
+            box-shadow: 0 0 15px rgba(255, 77, 166, 0.4); 
+        }
     </style>
 </head>
 <body>
@@ -41,18 +50,18 @@
 <div id="typingArea" class="text-typing"></div>
 
 <div id="questionSection">
-    <img src="IMG_3395.JPEG" alt="Nasze zdjęcie 1">
+    <img src="IMG_3395.JPEG" alt="Nasz skarb">
     <h1>Czy będziesz moją walentynką? ❤️</h1>
     <button id="yesBtn" onclick="acceptValentine()">TAK ❤️</button>
     <button id="noBtn" onmouseover="moveNo()" onclick="moveNo()">NIE :(</button>
 </div>
 
 <div id="successSection">
-    <img src="IMG_3396.JPEG" alt="Nasze zdjęcie 2">
+    <img src="IMG_3396.JPEG" alt="Nasz skarb 2">
     <div class="big-love">KOCHAM CIE MYSZKAAAA ❤️</div>
 </div>
 
-<audio id="music" src="music.mp3" loop preaload="auto"></audio>
+<audio id="music" src="music.mp3" loop preload="auto"></audio>
 
 <script>
     const music = document.getElementById("music");
@@ -61,31 +70,28 @@
     const successSection = document.getElementById("successSection");
     const noBtn = document.getElementById("noBtn");
 
-    // 1. START
     function startEverything() {
         document.getElementById("startScreen").style.display = "none";
-        music.play().catch(() => console.log("Czekam na interakcję..."));
+        music.play().catch(() => console.log("Muzyka ruszy po akcji"));
         runTypewriter();
     }
 
-    // 2. GWIAZDY
     const canvas = document.getElementById("starfield");
     const ctx = canvas.getContext("2d");
     let zoom = 1, stars = [];
     function initStars() {
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
         stars = [];
-        for(let i=0; i<300; i++) stars.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*1.5, o: Math.random()});
+        for(let i=0; i<250; i++) stars.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*1.3, o: Math.random()});
     }
     function drawStars() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
         ctx.save(); ctx.translate(canvas.width/2, canvas.height/2); ctx.scale(zoom,zoom); ctx.translate(-canvas.width/2, -canvas.height/2);
         stars.forEach(s => { ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fillStyle=`rgba(255,255,255,${s.o})`; ctx.fill(); });
-        ctx.restore(); zoom += 0.0005; requestAnimationFrame(drawStars);
+        ctx.restore(); zoom += 0.0004; requestAnimationFrame(drawStars);
     }
     initStars(); drawStars();
 
-    // 3. MASZYNA DO PISANIA
     const lines = [
         "Julus jestes moim najwiekszym skarbem",
         "nie wyobrazam sobie byc z kims innym",
@@ -110,7 +116,6 @@
         }
     }
 
-    // 4. UCIEKAJĄCY PRZYCISK
     function moveNo() {
         const x = Math.random() * (window.innerWidth - 120);
         const y = Math.random() * (window.innerHeight - 60);
@@ -118,16 +123,10 @@
         noBtn.style.top = y + "px";
     }
 
-    // 5. KLIKNIĘCIE TAK - TO TU DZIEJE SIĘ MAGIA
     function acceptValentine() {
-        // Schowaj pytanie, pokaż sukces
         questionSection.style.display = "none";
         successSection.style.display = "block";
-        
-        // Zagraj muzykę (na wypadek gdyby wcześniej nie ruszyła)
         music.play();
-
-        // Deszcz serduszek
         for(let i=0; i<60; i++) {
             setTimeout(() => {
                 const h = document.createElement("div");
