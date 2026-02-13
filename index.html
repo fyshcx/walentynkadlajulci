@@ -56,14 +56,25 @@ button{
 </head>
 <body>
 
+<!-- CANVAS Z GWIAZDAMI -->
 <canvas id="starfield"></canvas>
+
+<!-- TYPEWRITER TEXT -->
 <div id="text" class="text"></div>
+
+<!-- PYTANIE (na początku ukryte) -->
+<div id="questionContainer" style="text-align:center;margin-top:80px;color:white; display:none;">
+    <img id="mainImg" src="IMG_3395.JPEG" width="260"><br><br>
+    <h1>Czy będziesz moją walentynką? ❤️</h1>
+    <button id="yesBtn">TAK ❤️</button>
+    <button id="noBtn">NIE :(</button>
+    <audio id="music" src="music.mp3"></audio>
+</div>
 
 <script>
 /* =======================
    GWIAZDY + LEKKI ZOOM
 ======================= */
-
 var canvas = document.getElementById("starfield");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -102,7 +113,6 @@ drawStars();
 /* =======================
    TYPEWRITER INTRO
 ======================= */
-
 const lines=[
 "Julus jestes moim najwiekszym skarbem",
 "nie wyobrazam sobie byc z kims innym",
@@ -137,9 +147,8 @@ function typeWriter(){
 setTimeout(typeWriter,1000);
 
 /* =======================
-   PRZEJŚCIE
+   CINEMATIC TRANSITION
 ======================= */
-
 function cinematicTransition(){
     canvas.style.filter="blur(10px)";
     textDiv.innerHTML="";
@@ -151,22 +160,13 @@ function cinematicTransition(){
 /* =======================
    PYTANIE
 ======================= */
-
 function showQuestion(){
+    const container = document.getElementById("questionContainer");
+    container.style.display = "block";
 
-    document.body.innerHTML=`
-    <div style="text-align:center;margin-top:80px;color:white;">
-        <img id="mainImg" src="IMG_3395.JPEG" width="260"><br><br>
-        <h1>Czy będziesz moją walentynką? ❤️</h1>
-        <button id="yesBtn">TAK ❤️</button>
-        <button id="noBtn">NIE :(</button>
-        <audio id="music" src="music.mp3"></audio>
-    </div>
-    `;
-
-    let music=document.getElementById("music");
-    let noBtn=document.getElementById("noBtn");
-    let yesBtn=document.getElementById("yesBtn");
+    const music = document.getElementById("music");
+    const noBtn = document.getElementById("noBtn");
+    const yesBtn = document.getElementById("yesBtn");
 
     music.play();
 
@@ -178,11 +178,10 @@ function showQuestion(){
         noBtn.style.top=Math.random()*(window.innerHeight-50)+"px";
     }
 
-    noBtn.addEventListener("mouseover",move);
-    noBtn.addEventListener("touchstart",move);
+    noBtn.addEventListener("mouseover", move);
+    noBtn.addEventListener("touchstart", move);
 
-    yesBtn.addEventListener("click",()=>{
-
+    yesBtn.addEventListener("click", ()=>{
         for(let i=0;i<50;i++){
             let heart=document.createElement("div");
             heart.innerHTML="❤️";
@@ -192,10 +191,20 @@ function showQuestion(){
             document.body.appendChild(heart);
         }
 
-        // zmiana zdjęcia
-        document.getElementById("mainImg").src="IMG_3396.JPEG";
-
-        // zmiana tekstu
-        document.querySelector("h1").innerText="JEEEEJ KOCHAM CIE MYSZKA ❤️";
+        // Zmiana zdjęcia i tekstu po kliknięciu TAK
+        document.getElementById("mainImg").src = "IMG_3396.JPEG";
+        document.querySelector("#questionContainer h1").innerText = "JEEEEJ KOCHAM CIE MYSZKA ❤️";
     });
 }
+
+/* =======================
+   REAKCJA NA ZMIANĘ ROZMIARU OKNA
+======================= */
+window.addEventListener("resize", function () {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+</script>
+
+</body>
+</html>
