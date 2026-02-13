@@ -4,155 +4,85 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dla Ciebie ❤️</title>
-
     <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            background: black;
-            font-family: 'Courier New', monospace;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: -1;
-            transition: filter 1.5s ease;
-        }
-
-        .text {
-            position: absolute;
-            width: 90%;
-            text-align: center;
-            font-size: 24px;
-            color: #ff4da6;
-            letter-spacing: 2px;
-            line-height: 1.6;
-        }
-
-        #questionContainer {
-            text-align: center;
-            color: white;
-            display: none;
-            z-index: 10;
-            width: 90%;
-            max-width: 400px;
-        }
-
-        h1 { font-size: 24px; margin-bottom: 20px; text-shadow: 2px 2px 10px rgba(255, 77, 166, 0.5); }
-        h2 { font-size: 28px; color: #ff4da6; margin-top: 20px; animation: pulse 1.5s infinite; }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        button {
-            padding: 15px 30px;
-            font-size: 18px;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            margin: 10px;
-            font-weight: bold;
-            touch-action: manipulation;
-        }
-
-        #yesBtn { background: #ff4da6; color: white; transition: 0.3s; }
-        #yesBtn:hover { transform: scale(1.1); box-shadow: 0 0 15px #ff4da6; }
+        body { margin: 0; overflow: hidden; background: black; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; color: white; }
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; }
         
-        #noBtn { background: #444; color: white; position: absolute; transition: 0.1s; }
+        /* Ekran startowy - rozwiązuje problem z muzyką */
+        #startScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 100; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        
+        .text { position: absolute; width: 90%; text-align: center; font-size: 24px; color: #ff4da6; letter-spacing: 2px; }
+        #questionContainer { text-align: center; display: none; z-index: 10; width: 90%; max-width: 400px; }
+        h1 { font-size: 22px; margin: 20px 0; }
+        h2 { font-size: 28px; color: #ff4da6; margin-top: 20px; animation: pulse 1.5s infinite; }
+        
+        button { padding: 15px 30px; font-size: 18px; border: none; border-radius: 12px; cursor: pointer; margin: 10px; font-weight: bold; touch-action: manipulation; }
+        #startBtn { background: #ff4da6; color: white; font-size: 22px; }
+        #yesBtn { background: #ff4da6; color: white; }
+        #noBtn { background: #444; color: white; position: absolute; }
 
-        .heart {
-            position: absolute;
-            font-size: 25px;
-            pointer-events: none;
-            z-index: 999;
-            animation: floatUp 3s linear forwards;
-        }
-
-        @keyframes floatUp {
-            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
-        }
-
-        #mainImg {
-            max-width: 100%;
-            height: auto;
-            border-radius: 20px;
-            box-shadow: 0 0 25px rgba(255, 77, 166, 0.4);
-            border: 3px solid #ff4da6;
-        }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .heart { position: absolute; font-size: 25px; pointer-events: none; z-index: 999; animation: floatUp 3s linear forwards; }
+        @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-100vh); opacity: 0; } }
+        #mainImg { max-width: 100%; height: auto; border-radius: 20px; border: 3px solid #ff4da6; }
     </style>
 </head>
 <body>
 
-<canvas id="starfield"></canvas>
+<div id="startScreen">
+    <button id="startBtn">KLIKNIJ TUTAJ SKARBIE ❤️</button>
+</div>
 
+<canvas id="starfield"></canvas>
 <div id="text" class="text"></div>
 
 <div id="questionContainer">
-    <img id="mainImg" src="IMG_3395.JPEG" alt="Nasz skarb">
+    <img id="mainImg" src="IMG_3395.JPEG">
     <h1 id="mainHeading">Czy będziesz moją walentynką? ❤️</h1>
-    <div id="btnWrapper">
+    <div id="btnWrapper" style="height: 100px;">
         <button id="yesBtn">TAK ❤️</button>
         <button id="noBtn">NIE :(</button>
     </div>
-    <audio id="music" src="music.mp3" loop></audio>
 </div>
 
+<audio id="music" src="music.mp3" loop preaload="auto"></audio>
+
 <script>
-/* =======================
-   GWIAZDY (TŁO)
-======================= */
+const music = document.getElementById("music");
+const startScreen = document.getElementById("startScreen");
+const textDiv = document.getElementById("text");
+const questionContainer = document.getElementById("questionContainer");
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+const mainImg = document.getElementById("mainImg");
+const mainHeading = document.getElementById("mainHeading");
+
+/* 1. START PO KLIKNIĘCIU */
+document.getElementById("startBtn").addEventListener("click", () => {
+    startScreen.style.display = "none";
+    music.play().catch(e => console.log("Błąd muzyki:", e));
+    typeWriter(); // Zaczyna pisać tekst
+});
+
+/* 2. GWIAZDY */
 const canvas = document.getElementById("starfield");
 const ctx = canvas.getContext("2d");
-let stars = [];
 let zoom = 1;
-
+let stars = [];
 function initStars() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
     stars = [];
-    for(let i=0; i<400; i++) {
-        stars.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            r: Math.random() * 1.5,
-            o: Math.random()
-        });
-    }
+    for(let i=0; i<300; i++) stars.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*1.5, o: Math.random()});
 }
-
 function drawStars() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.save();
-    ctx.translate(canvas.width/2, canvas.height/2);
-    ctx.scale(zoom, zoom);
-    ctx.translate(-canvas.width/2, -canvas.height/2);
-    stars.forEach(s => {
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
-        ctx.fillStyle = `rgba(255, 255, 255, ${s.o})`;
-        ctx.fill();
-    });
-    ctx.restore();
-    zoom += 0.0006;
-    requestAnimationFrame(drawStars);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.save(); ctx.translate(canvas.width/2, canvas.height/2); ctx.scale(zoom,zoom); ctx.translate(-canvas.width/2, -canvas.height/2);
+    stars.forEach(s => { ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fillStyle=`rgba(255,255,255,${s.o})`; ctx.fill(); });
+    ctx.restore(); zoom += 0.0005; requestAnimationFrame(drawStars);
 }
+initStars(); drawStars();
 
-initStars();
-drawStars();
-
-/* =======================
-   MASZYNA DO PISANIA
-======================= */
+/* 3. TEKST */
 const lines = [
     "Julus jestes moim najwiekszym skarbem",
     "nie wyobrazam sobie byc z kims innym",
@@ -161,98 +91,61 @@ const lines = [
     "kocham cie najmocniej na swiecie",
     "i mam jedno pytanie..."
 ];
-
-const textDiv = document.getElementById("text");
-let lineIndex = 0;
-let charIndex = 0;
-
+let lineIdx = 0, charIdx = 0;
 function typeWriter() {
-    if (lineIndex < lines.length) {
-        if (charIndex < lines[lineIndex].length) {
-            textDiv.innerHTML += lines[lineIndex][charIndex];
-            charIndex++;
-            setTimeout(typeWriter, 45);
+    if (lineIdx < lines.length) {
+        if (charIdx < lines[lineIdx].length) {
+            textDiv.innerHTML += lines[lineIdx][charIdx];
+            charIdx++; setTimeout(typeWriter, 50);
         } else {
-            setTimeout(() => {
-                textDiv.innerHTML = "";
-                charIndex = 0;
-                lineIndex++;
-                typeWriter();
-            }, 1400);
+            setTimeout(() => { textDiv.innerHTML = ""; charIdx = 0; lineIdx++; typeWriter(); }, 1500);
         }
     } else {
-        cinematicTransition();
+        textDiv.style.display = "none";
+        document.getElementById("starfield").style.filter = "blur(8px)";
+        questionContainer.style.display = "block";
     }
 }
 
-setTimeout(typeWriter, 1000);
+/* 4. PRZYCISKI */
+noBtn.addEventListener("mouseover", moveNo);
+noBtn.addEventListener("touchstart", (e) => { e.preventDefault(); moveNo(); });
 
-/* =======================
-   REAKCJA I ZMIANA ZDJĘCIA
-======================= */
-function cinematicTransition() {
-    canvas.style.filter = "blur(10px)";
-    textDiv.style.display = "none";
-    setTimeout(showQuestion, 1000);
+function moveNo() {
+    const x = Math.random() * (window.innerWidth - 100);
+    const y = Math.random() * (window.innerHeight - 50);
+    noBtn.style.left = x + "px";
+    noBtn.style.top = y + "px";
 }
 
-function showQuestion() {
-    const container = document.getElementById("questionContainer");
-    const music = document.getElementById("music");
-    const noBtn = document.getElementById("noBtn");
-    const yesBtn = document.getElementById("yesBtn");
-    const mainImg = document.getElementById("mainImg");
-    const mainHeading = document.getElementById("mainHeading");
+// KLUCZOWY MOMENT - PRZYCISK TAK
+yesBtn.onclick = function() {
+    console.log("Kliknięto TAK!");
+    
+    // Zmiana obrazka i tekstu
+    mainImg.src = "IMG_3396.JPEG";
+    mainHeading.innerText = "JEEEEJ! ❤️";
+    
+    // Ukrycie przycisków
+    yesBtn.style.display = "none";
+    noBtn.style.display = "none";
 
-    container.style.display = "block";
-    music.play().catch(() => console.log("Interakcja potrzebna do muzyki"));
+    // Dodanie napisu
+    const love = document.createElement("h2");
+    love.innerText = "KOCHAM CIE MYSZKAAAA";
+    questionContainer.appendChild(love);
 
-    // Uciekający przycisk NIE
-    function moveNo() {
-        const x = Math.random() * (window.innerWidth - 120);
-        const y = Math.random() * (window.innerHeight - 60);
-        noBtn.style.left = x + "px";
-        noBtn.style.top = y + "px";
+    // Deszcz serc
+    for(let i=0; i<50; i++) {
+        setTimeout(() => {
+            const h = document.createElement("div");
+            h.innerHTML = "❤️"; h.className = "heart";
+            h.style.left = Math.random()*100 + "vw"; h.style.top = "100vh";
+            document.body.appendChild(h);
+            setTimeout(() => h.remove(), 3000);
+        }, i * 100);
     }
-
-    noBtn.addEventListener("mouseover", moveNo);
-    noBtn.addEventListener("touchstart", (e) => { e.preventDefault(); moveNo(); });
-
-    // KLIKNIĘCIE TAK
-    yesBtn.addEventListener("click", () => {
-        // Zmiana zdjęcia i napisów
-        mainImg.src = "IMG_3396.JPEG";
-        mainHeading.innerText = "JEEEEJ! ❤️";
-        
-        // Ukrycie przycisków
-        yesBtn.style.display = "none";
-        noBtn.style.display = "none";
-
-        // Dodanie napisu "KOCHAM CIE MYSZKAAAA"
-        const loveText = document.createElement("h2");
-        loveText.innerText = "KOCHAM CIE MYSZKAAAA";
-        container.appendChild(loveText);
-
-        // Deszcz serc
-        for(let i=0; i<70; i++) {
-            setTimeout(() => {
-                const heart = document.createElement("div");
-                heart.innerHTML = "❤️";
-                heart.className = "heart";
-                heart.style.left = Math.random() * 100 + "vw";
-                heart.style.top = "100vh";
-                heart.style.fontSize = (Math.random() * 20 + 20) + "px";
-                document.body.appendChild(heart);
-                setTimeout(() => heart.remove(), 3500);
-            }, i * 60);
-        }
-
-        music.play();
-    });
-}
-
-window.addEventListener("resize", initStars);
+};
 </script>
-
 </body>
 </html>
