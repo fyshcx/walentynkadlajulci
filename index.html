@@ -8,144 +8,138 @@
         body { margin: 0; overflow: hidden; background: black; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; color: white; }
         canvas { position: fixed; top: 0; left: 0; z-index: -1; }
         
-        /* Ekran startowy - rozwiązuje problem z muzyką */
-        #startScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 100; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        /* Start Screen */
+        #startScreen { position: fixed; inset: 0; background: black; z-index: 100; display: flex; justify-content: center; align-items: center; }
+        #startBtn { padding: 20px 40px; font-size: 22px; background: #ff4da6; color: white; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; }
+
+        .text-typing { position: absolute; width: 90%; text-align: center; font-size: 24px; color: #ff4da6; }
         
-        .text { position: absolute; width: 90%; text-align: center; font-size: 24px; color: #ff4da6; letter-spacing: 2px; }
-        #questionContainer { text-align: center; display: none; z-index: 10; width: 90%; max-width: 400px; }
+        /* Kontenery */
+        #questionSection, #successSection { text-align: center; z-index: 10; width: 90%; max-width: 400px; display: none; }
+        
         h1 { font-size: 22px; margin: 20px 0; }
-        h2 { font-size: 28px; color: #ff4da6; margin-top: 20px; animation: pulse 1.5s infinite; }
+        .big-love { font-size: 30px; color: #ff4da6; font-weight: bold; animation: pulse 1s infinite; margin-top: 15px; }
         
-        button { padding: 15px 30px; font-size: 18px; border: none; border-radius: 12px; cursor: pointer; margin: 10px; font-weight: bold; touch-action: manipulation; }
-        #startBtn { background: #ff4da6; color: white; font-size: 22px; }
+        button { padding: 15px 30px; font-size: 18px; border: none; border-radius: 12px; cursor: pointer; margin: 10px; font-weight: bold; }
         #yesBtn { background: #ff4da6; color: white; }
-        #noBtn { background: #444; color: white; position: absolute; }
+        #noBtn { background: #444; color: white; position: absolute; transition: 0.1s; }
 
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
         .heart { position: absolute; font-size: 25px; pointer-events: none; z-index: 999; animation: floatUp 3s linear forwards; }
         @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-100vh); opacity: 0; } }
-        #mainImg { max-width: 100%; height: auto; border-radius: 20px; border: 3px solid #ff4da6; }
+        
+        img { max-width: 100%; height: auto; border-radius: 20px; border: 3px solid #ff4da6; box-shadow: 0 0 20px #ff4da6; }
     </style>
 </head>
 <body>
 
 <div id="startScreen">
-    <button id="startBtn">KLIKNIJ TUTAJ SKARBIE ❤️</button>
+    <button id="startBtn" onclick="startEverything()">KLIKNIJ TUTAJ SKARBIE ❤️</button>
 </div>
 
 <canvas id="starfield"></canvas>
-<div id="text" class="text"></div>
+<div id="typingArea" class="text-typing"></div>
 
-<div id="questionContainer">
-    <img id="mainImg" src="IMG_3395.JPEG">
-    <h1 id="mainHeading">Czy będziesz moją walentynką? ❤️</h1>
-    <div id="btnWrapper" style="height: 100px;">
-        <button id="yesBtn">TAK ❤️</button>
-        <button id="noBtn">NIE :(</button>
-    </div>
+<div id="questionSection">
+    <img src="IMG_3395.JPEG" alt="Nasze zdjęcie 1">
+    <h1>Czy będziesz moją walentynką? ❤️</h1>
+    <button id="yesBtn" onclick="acceptValentine()">TAK ❤️</button>
+    <button id="noBtn" onmouseover="moveNo()" onclick="moveNo()">NIE :(</button>
+</div>
+
+<div id="successSection">
+    <img src="IMG_3396.JPEG" alt="Nasze zdjęcie 2">
+    <div class="big-love">KOCHAM CIE MYSZKAAAA ❤️</div>
 </div>
 
 <audio id="music" src="music.mp3" loop preaload="auto"></audio>
 
 <script>
-const music = document.getElementById("music");
-const startScreen = document.getElementById("startScreen");
-const textDiv = document.getElementById("text");
-const questionContainer = document.getElementById("questionContainer");
-const yesBtn = document.getElementById("yesBtn");
-const noBtn = document.getElementById("noBtn");
-const mainImg = document.getElementById("mainImg");
-const mainHeading = document.getElementById("mainHeading");
+    const music = document.getElementById("music");
+    const typingArea = document.getElementById("typingArea");
+    const questionSection = document.getElementById("questionSection");
+    const successSection = document.getElementById("successSection");
+    const noBtn = document.getElementById("noBtn");
 
-/* 1. START PO KLIKNIĘCIU */
-document.getElementById("startBtn").addEventListener("click", () => {
-    startScreen.style.display = "none";
-    music.play().catch(e => console.log("Błąd muzyki:", e));
-    typeWriter(); // Zaczyna pisać tekst
-});
+    // 1. START
+    function startEverything() {
+        document.getElementById("startScreen").style.display = "none";
+        music.play().catch(() => console.log("Czekam na interakcję..."));
+        runTypewriter();
+    }
 
-/* 2. GWIAZDY */
-const canvas = document.getElementById("starfield");
-const ctx = canvas.getContext("2d");
-let zoom = 1;
-let stars = [];
-function initStars() {
-    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-    stars = [];
-    for(let i=0; i<300; i++) stars.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*1.5, o: Math.random()});
-}
-function drawStars() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.save(); ctx.translate(canvas.width/2, canvas.height/2); ctx.scale(zoom,zoom); ctx.translate(-canvas.width/2, -canvas.height/2);
-    stars.forEach(s => { ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fillStyle=`rgba(255,255,255,${s.o})`; ctx.fill(); });
-    ctx.restore(); zoom += 0.0005; requestAnimationFrame(drawStars);
-}
-initStars(); drawStars();
+    // 2. GWIAZDY
+    const canvas = document.getElementById("starfield");
+    const ctx = canvas.getContext("2d");
+    let zoom = 1, stars = [];
+    function initStars() {
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        stars = [];
+        for(let i=0; i<300; i++) stars.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*1.5, o: Math.random()});
+    }
+    function drawStars() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.save(); ctx.translate(canvas.width/2, canvas.height/2); ctx.scale(zoom,zoom); ctx.translate(-canvas.width/2, -canvas.height/2);
+        stars.forEach(s => { ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fillStyle=`rgba(255,255,255,${s.o})`; ctx.fill(); });
+        ctx.restore(); zoom += 0.0005; requestAnimationFrame(drawStars);
+    }
+    initStars(); drawStars();
 
-/* 3. TEKST */
-const lines = [
-    "Julus jestes moim najwiekszym skarbem",
-    "nie wyobrazam sobie byc z kims innym",
-    "jestes moim sloneczkiem, gwiazda",
-    "i wszystkim co istnieje",
-    "kocham cie najmocniej na swiecie",
-    "i mam jedno pytanie..."
-];
-let lineIdx = 0, charIdx = 0;
-function typeWriter() {
-    if (lineIdx < lines.length) {
-        if (charIdx < lines[lineIdx].length) {
-            textDiv.innerHTML += lines[lineIdx][charIdx];
-            charIdx++; setTimeout(typeWriter, 50);
+    // 3. MASZYNA DO PISANIA
+    const lines = [
+        "Julus jestes moim najwiekszym skarbem",
+        "nie wyobrazam sobie byc z kims innym",
+        "jestes moim sloneczkiem, gwiazda",
+        "i wszystkim co istnieje",
+        "kocham cie najmocniej na swiecie",
+        "i mam jedno pytanie..."
+    ];
+    let lineIdx = 0, charIdx = 0;
+    function runTypewriter() {
+        if (lineIdx < lines.length) {
+            if (charIdx < lines[lineIdx].length) {
+                typingArea.innerHTML += lines[lineIdx][charIdx];
+                charIdx++; setTimeout(runTypewriter, 50);
+            } else {
+                setTimeout(() => { typingArea.innerHTML = ""; charIdx = 0; lineIdx++; runTypewriter(); }, 1500);
+            }
         } else {
-            setTimeout(() => { textDiv.innerHTML = ""; charIdx = 0; lineIdx++; typeWriter(); }, 1500);
+            typingArea.style.display = "none";
+            canvas.style.filter = "blur(8px)";
+            questionSection.style.display = "block";
         }
-    } else {
-        textDiv.style.display = "none";
-        document.getElementById("starfield").style.filter = "blur(8px)";
-        questionContainer.style.display = "block";
     }
-}
 
-/* 4. PRZYCISKI */
-noBtn.addEventListener("mouseover", moveNo);
-noBtn.addEventListener("touchstart", (e) => { e.preventDefault(); moveNo(); });
-
-function moveNo() {
-    const x = Math.random() * (window.innerWidth - 100);
-    const y = Math.random() * (window.innerHeight - 50);
-    noBtn.style.left = x + "px";
-    noBtn.style.top = y + "px";
-}
-
-// KLUCZOWY MOMENT - PRZYCISK TAK
-yesBtn.onclick = function() {
-    console.log("Kliknięto TAK!");
-    
-    // Zmiana obrazka i tekstu
-    mainImg.src = "IMG_3396.JPEG";
-    mainHeading.innerText = "JEEEEJ! ❤️";
-    
-    // Ukrycie przycisków
-    yesBtn.style.display = "none";
-    noBtn.style.display = "none";
-
-    // Dodanie napisu
-    const love = document.createElement("h2");
-    love.innerText = "KOCHAM CIE MYSZKAAAA";
-    questionContainer.appendChild(love);
-
-    // Deszcz serc
-    for(let i=0; i<50; i++) {
-        setTimeout(() => {
-            const h = document.createElement("div");
-            h.innerHTML = "❤️"; h.className = "heart";
-            h.style.left = Math.random()*100 + "vw"; h.style.top = "100vh";
-            document.body.appendChild(h);
-            setTimeout(() => h.remove(), 3000);
-        }, i * 100);
+    // 4. UCIEKAJĄCY PRZYCISK
+    function moveNo() {
+        const x = Math.random() * (window.innerWidth - 120);
+        const y = Math.random() * (window.innerHeight - 60);
+        noBtn.style.left = x + "px";
+        noBtn.style.top = y + "px";
     }
-};
+
+    // 5. KLIKNIĘCIE TAK - TO TU DZIEJE SIĘ MAGIA
+    function acceptValentine() {
+        // Schowaj pytanie, pokaż sukces
+        questionSection.style.display = "none";
+        successSection.style.display = "block";
+        
+        // Zagraj muzykę (na wypadek gdyby wcześniej nie ruszyła)
+        music.play();
+
+        // Deszcz serduszek
+        for(let i=0; i<60; i++) {
+            setTimeout(() => {
+                const h = document.createElement("div");
+                h.innerHTML = "❤️"; h.className = "heart";
+                h.style.left = Math.random()*100 + "vw"; h.style.top = "100vh";
+                document.body.appendChild(h);
+                setTimeout(() => h.remove(), 3000);
+            }, i * 80);
+        }
+    }
+    
+    window.addEventListener("resize", initStars);
 </script>
 </body>
 </html>
